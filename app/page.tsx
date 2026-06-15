@@ -39,6 +39,7 @@ export default function Home() {
   const [generating, setGenerating] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -114,7 +115,12 @@ export default function Home() {
         </button>
         <div style={{color:"#555",textAlign:"center",marginBottom:16}}>эсвэл и-мэйлээр</div>
         <input placeholder="И-мэйл" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:8,boxSizing:"border-box"}}/>
-        <input placeholder="Нууц үг" type="password" value={pass} onChange={e=>setPass(e.target.value)} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:8,boxSizing:"border-box"}}/>
+        <div style={{position:"relative",marginBottom:8}}>
+          <input placeholder="Нууц үг" type={showPass ? "text" : "password"} value={pass} onChange={e=>setPass(e.target.value)} style={{width:"100%",padding:10,paddingRight:40,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",boxSizing:"border-box"}}/>
+          <span onClick={()=>setShowPass(!showPass)} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",cursor:"pointer",fontSize:18}}>
+            {showPass ? "🙈" : "👁️"}
+          </span>
+        </div>
         {error && <div style={{color:"#ff4444",marginBottom:8,fontSize:13}}>{error}</div>}
         <button onClick={loginEmail} disabled={!!authLoading} style={{width:"100%",padding:12,background:"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold"}}>
           {mode==="login" ? "Нэвтрэх →" : "Бүртгүүлэх →"}
