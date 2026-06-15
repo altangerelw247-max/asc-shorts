@@ -110,8 +110,9 @@ export default function Home() {
       <h1 style={{fontSize:28,fontWeight:"bold",marginBottom:4}}>ShortsStudio</h1>
       <p style={{color:"#888",marginBottom:32}}>Create your account</p>
       <div style={{background:"#111",padding:32,borderRadius:16,width:340}}>
-        <button onClick={loginGoogle} disabled={authLoading==="google"} style={{width:"100%",padding:"12px",background:"white",color:"black",border:"none",borderRadius:8,cursor:"pointer",marginBottom:16,fontWeight:"bold"}}>
-          {authLoading==="google" ? "..." : "G  Sign in with Google"}
+        <button onClick={loginGoogle} disabled={authLoading==="google"} style={{width:"100%",padding:"12px",background:"white",color:"black",border:"none",borderRadius:8,cursor:"pointer",marginBottom:16,fontWeight:"bold",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.7 0 6.7 5.5 2.7 13.5l7.8 6C12.5 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17z"/><path fill="#FBBC05" d="M10.5 28.5c-.5-1.5-.8-3-.8-4.5s.3-3 .8-4.5l-7.8-6C1 16.5 0 20.1 0 24s1 7.5 2.7 10.5l7.8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-4.2-13.4-9.9l-7.8 6C6.7 42.5 14.7 48 24 48z"/></svg>
+          {authLoading==="google" ? "..." : "Sign in with Google"}
         </button>
         <div style={{color:"#555",textAlign:"center",marginBottom:16}}>or with email</div>
         <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:8,boxSizing:"border-box"}}/>
