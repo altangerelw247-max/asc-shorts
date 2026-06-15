@@ -9,6 +9,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "firebase/firestore";
 
@@ -109,6 +110,17 @@ export default function Home() {
     setAuthLoading("");
   }
 
+  async function resetPassword() {
+    if (!email) return setError("Please enter your email first.");
+    setError("");
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setError("✅ Password reset email sent! Check your inbox.");
+    } catch (e: any) {
+      setError(getErrorMessage(e.code));
+    }
+  }
+
   async function generate() {
     if (!url) return setError("Please enter a YouTube link!");
     if (!isAdmin && usageCount >= 3) return setError("Free limit reached! Admin access required.");
@@ -148,10 +160,17 @@ export default function Home() {
             {showPass ? "🙈" : "👁️"}
           </span>
         </div>
-        {error && <div style={{color:"#ff4444",marginBottom:8,fontSize:13}}>{error}</div>}
+        {error && <div style={{color: error.startsWith("✅") ? "#4caf50" : "#ff4444",marginBottom:8,fontSize:13}}>{error}</div>}
         <button onClick={loginEmail} disabled={!!authLoading} style={{width:"100%",padding:12,background:"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold"}}>
           {mode==="login" ? "Sign In →" : "Sign Up →"}
         </button>
+        {mode==="login" && (
+          <p style={{textAlign:"center",marginTop:8,fontSize:13}}>
+            <span onClick={resetPassword} style={{color:"#888",cursor:"pointer",textDecoration:"underline"}}>
+              Forgot password?
+            </span>
+          </p>
+        )}
         <p style={{textAlign:"center",marginTop:12,color:"#888",fontSize:13}}>
           {mode==="login" ? "Don't have an account? " : "Already have an account? "}
           <span onClick={()=>setMode(mode==="login"?"register":"login")} style={{color:"#e53",cursor:"pointer"}}>{mode==="login"?"Sign Up":"Sign In"}</span>
