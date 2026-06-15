@@ -29,24 +29,24 @@ const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 function getErrorMessage(code: string): string {
   switch (code) {
     case "auth/too-many-requests":
-      return "Хэт олон удаа оролдлоо. Түр хүлээгээд дахин оролдоно уу.";
+      return "Too many attempts. Please try again later.";
     case "auth/wrong-password":
     case "auth/invalid-credential":
-      return "Нууц үг буруу байна.";
+      return "Incorrect password. Please try again.";
     case "auth/user-not-found":
-      return "Хэрэглэгч олдсонгүй.";
+      return "No account found with this email.";
     case "auth/email-already-in-use":
-      return "Энэ имэйл хаяг аль хэдийн бүртгэлтэй байна.";
+      return "This email is already registered.";
     case "auth/invalid-email":
-      return "Имэйл хаяг буруу байна.";
+      return "Invalid email address.";
     case "auth/weak-password":
-      return "Нууц үг хэт богино байна. 6-аас дээш тэмдэгт ашиглана уу.";
+      return "Password must be at least 6 characters.";
     case "auth/unauthorized-domain":
-      return "Энэ домайн зөвшөөрөгдөөгүй байна.";
+      return "This domain is not authorized.";
     case "auth/popup-closed-by-user":
-      return "Google нэвтрэх цонх хаагдлаа. Дахин оролдоно уу.";
+      return "Sign-in popup was closed. Please try again.";
     default:
-      return "Алдаа гарлаа. Дахин оролдоно уу.";
+      return "Something went wrong. Please try again.";
   }
 }
 
@@ -110,8 +110,8 @@ export default function Home() {
   }
 
   async function generate() {
-    if (!url) return setError("YouTube линк оруулна уу!");
-    if (!isAdmin && usageCount >= 3) return setError("Үнэгүй хязгаарт хүрлээ! Admin эрх шаардлагатай.");
+    if (!url) return setError("Please enter a YouTube link!");
+    if (!isAdmin && usageCount >= 3) return setError("Free limit reached! Admin access required.");
     setGenerating(true);
     setError("");
     setResult("");
@@ -121,40 +121,40 @@ export default function Home() {
         await updateDoc(ref, { count: increment(1) });
         setUsageCount((c) => c + 1);
       }
-      setResult(`✅ "${url}" - Shorts үүсгэж байна...\n\nЭнэ функц удахгүй нэмэгдэнэ!`);
+      setResult(`✅ "${url}" - Generating shorts...\n\nThis feature will be available soon!`);
     } catch (e: any) {
       setError(getErrorMessage(e.code));
     }
     setGenerating(false);
   }
 
-  if (loading) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#0a0a0a",color:"white"}}>Уншиж байна...</div>;
+  if (loading) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#0a0a0a",color:"white"}}>Loading...</div>;
 
   if (!user) return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100vh",background:"#0a0a0a",color:"white",fontFamily:"sans-serif"}}>
       <div style={{fontSize:48,marginBottom:8}}>🎬</div>
       <h1 style={{fontSize:28,fontWeight:"bold",marginBottom:4}}>ShortsStudio</h1>
-      <p style={{color:"#888",marginBottom:32}}>Бүртгэл үүсгэх</p>
+      <p style={{color:"#888",marginBottom:32}}>Create your account</p>
       <div style={{background:"#111",padding:32,borderRadius:16,width:340}}>
         <button onClick={loginGoogle} disabled={authLoading==="google"} style={{width:"100%",padding:"12px",background:"white",color:"black",border:"none",borderRadius:8,cursor:"pointer",marginBottom:16,fontWeight:"bold",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
           <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.5 30.2 0 24 0 14.7 0 6.7 5.5 2.7 13.5l7.8 6C12.5 13 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17z"/><path fill="#FBBC05" d="M10.5 28.5c-.5-1.5-.8-3-.8-4.5s.3-3 .8-4.5l-7.8-6C1 16.5 0 20.1 0 24s1 7.5 2.7 10.5l7.8-6z"/><path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.2 0-11.5-4.2-13.4-9.9l-7.8 6C6.7 42.5 14.7 48 24 48z"/></svg>
-          {authLoading==="google" ? "..." : "Google-ээр нэвтрэх"}
+          {authLoading==="google" ? "..." : "Sign in with Google"}
         </button>
-        <div style={{color:"#555",textAlign:"center",marginBottom:16}}>эсвэл имэйлээр</div>
-        <input placeholder="Имэйл" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:8,boxSizing:"border-box"}}/>
+        <div style={{color:"#555",textAlign:"center",marginBottom:16}}>or with email</div>
+        <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:8,boxSizing:"border-box"}}/>
         <div style={{position:"relative",marginBottom:8}}>
-          <input placeholder="Нууц үг" type={showPass ? "text" : "password"} value={pass} onChange={e=>setPass(e.target.value)} style={{width:"100%",padding:10,paddingRight:40,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",boxSizing:"border-box"}}/>
+          <input placeholder="Password" type={showPass ? "text" : "password"} value={pass} onChange={e=>setPass(e.target.value)} style={{width:"100%",padding:10,paddingRight:40,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",boxSizing:"border-box"}}/>
           <span onClick={()=>setShowPass(!showPass)} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",cursor:"pointer",fontSize:18}}>
             {showPass ? "🙈" : "👁️"}
           </span>
         </div>
         {error && <div style={{color:"#ff4444",marginBottom:8,fontSize:13}}>{error}</div>}
         <button onClick={loginEmail} disabled={!!authLoading} style={{width:"100%",padding:12,background:"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold"}}>
-          {mode==="login" ? "Нэвтрэх →" : "Бүртгүүлэх →"}
+          {mode==="login" ? "Sign In →" : "Sign Up →"}
         </button>
         <p style={{textAlign:"center",marginTop:12,color:"#888",fontSize:13}}>
-          {mode==="login" ? "Бүртгэл байхгүй юу? " : "Аль хэдийн бүртгэлтэй юу? "}
-          <span onClick={()=>setMode(mode==="login"?"register":"login")} style={{color:"#e53",cursor:"pointer"}}>{mode==="login"?"Бүртгүүлэх":"Нэвтрэх"}</span>
+          {mode==="login" ? "Don't have an account? " : "Already have an account? "}
+          <span onClick={()=>setMode(mode==="login"?"register":"login")} style={{color:"#e53",cursor:"pointer"}}>{mode==="login"?"Sign Up":"Sign In"}</span>
         </p>
       </div>
     </div>
@@ -171,20 +171,20 @@ export default function Home() {
           </div>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <span style={{color:"#888",fontSize:13}}>{user.email}</span>
-            <button onClick={()=>signOut(auth)} style={{padding:"6px 12px",background:"#222",color:"white",border:"1px solid #333",borderRadius:6,cursor:"pointer"}}>Гарах</button>
+            <button onClick={()=>signOut(auth)} style={{padding:"6px 12px",background:"#222",color:"white",border:"1px solid #333",borderRadius:6,cursor:"pointer"}}>Sign Out</button>
           </div>
         </div>
 
         <div style={{background:"#111",borderRadius:16,padding:24,marginBottom:16}}>
-          <h2 style={{fontSize:20,marginBottom:16}}>Shorts үүсгэгч</h2>
+          <h2 style={{fontSize:20,marginBottom:16}}>Shorts Generator</h2>
           {!isAdmin && (
             <div style={{background:"#1a1a1a",borderRadius:8,padding:12,marginBottom:16,fontSize:13,color:"#aaa"}}>
-              Үнэгүй ашиглалт: <strong style={{color:usageCount>=3?"#ff4444":"#4caf50"}}>{usageCount}/3</strong>
-              {usageCount>=3 && <span style={{color:"#ff4444"}}> — Хязгаарт хүрлээ!</span>}
+              Free usage: <strong style={{color:usageCount>=3?"#ff4444":"#4caf50"}}>{usageCount}/3</strong>
+              {usageCount>=3 && <span style={{color:"#ff4444"}}> — Limit reached!</span>}
             </div>
           )}
           <input
-            placeholder="YouTube линк оруулна уу..."
+            placeholder="Enter YouTube link..."
             value={url}
             onChange={e=>setUrl(e.target.value)}
             style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:12,boxSizing:"border-box",fontSize:15}}
@@ -195,13 +195,13 @@ export default function Home() {
             disabled={generating || (!isAdmin && usageCount>=3)}
             style={{width:"100%",padding:14,background:(!isAdmin&&usageCount>=3)?"#333":"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold",fontSize:16}}
           >
-            {generating ? "Үүсгэж байна..." : "Shorts үүсгэх 🚀"}
+            {generating ? "Generating..." : "Generate Shorts 🚀"}
           </button>
         </div>
 
         {result && (
           <div style={{background:"#111",borderRadius:16,padding:24}}>
-            <h3 style={{marginBottom:12}}>Үр дүн:</h3>
+            <h3 style={{marginBottom:12}}>Result:</h3>
             <pre style={{color:"#4caf50",whiteSpace:"pre-wrap"}}>{result}</pre>
           </div>
         )}
