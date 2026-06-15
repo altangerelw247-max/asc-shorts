@@ -84,8 +84,8 @@ export default function Home() {
   }
 
   async function generate() {
-    if (!url) return setError("YouTube линк оруулна уу!");
-    if (!isAdmin && usageCount >= 3) return setError("Үнэгүй 3 удаа дууслаа! Admin эрх шаардлагатай.");
+    if (!url) return setError("Please enter a YouTube link!");
+    if (!isAdmin && usageCount >= 3) return setError("Free limit reached! Admin access required.");
     setGenerating(true);
     setError("");
     setResult("");
@@ -95,39 +95,39 @@ export default function Home() {
         await updateDoc(ref, { count: increment(1) });
         setUsageCount((c) => c + 1);
       }
-      setResult(`✅ "${url}" - Shorts үүсгэж байна...\n\nЭнэ функц удахгүй бэлэн болно!`);
+      setResult(`✅ "${url}" - Generating shorts...\n\nThis feature will be available soon!`);
     } catch (e: any) {
       setError(e.message);
     }
     setGenerating(false);
   }
 
-  if (loading) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#0a0a0a",color:"white"}}>Уншиж байна...</div>;
+  if (loading) return <div style={{display:"flex",justifyContent:"center",alignItems:"center",height:"100vh",background:"#0a0a0a",color:"white"}}>Loading...</div>;
 
   if (!user) return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100vh",background:"#0a0a0a",color:"white",fontFamily:"sans-serif"}}>
       <div style={{fontSize:48,marginBottom:8}}>🎬</div>
       <h1 style={{fontSize:28,fontWeight:"bold",marginBottom:4}}>ShortsStudio</h1>
-      <p style={{color:"#888",marginBottom:32}}>Бүртгэл үүсгэх</p>
+      <p style={{color:"#888",marginBottom:32}}>Create your account</p>
       <div style={{background:"#111",padding:32,borderRadius:16,width:340}}>
         <button onClick={loginGoogle} disabled={authLoading==="google"} style={{width:"100%",padding:"12px",background:"white",color:"black",border:"none",borderRadius:8,cursor:"pointer",marginBottom:16,fontWeight:"bold"}}>
-          {authLoading==="google" ? "..." : "G  Google-ээр нэвтрэх"}
+          {authLoading==="google" ? "..." : "G  Sign in with Google"}
         </button>
-        <div style={{color:"#555",textAlign:"center",marginBottom:16}}>эсвэл и-мэйлээр</div>
-        <input placeholder="И-мэйл" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:8,boxSizing:"border-box"}}/>
+        <div style={{color:"#555",textAlign:"center",marginBottom:16}}>or with email</div>
+        <input placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} style={{width:"100%",padding:10,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:8,boxSizing:"border-box"}}/>
         <div style={{position:"relative",marginBottom:8}}>
-          <input placeholder="Нууц үг" type={showPass ? "text" : "password"} value={pass} onChange={e=>setPass(e.target.value)} style={{width:"100%",padding:10,paddingRight:40,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",boxSizing:"border-box"}}/>
+          <input placeholder="Password" type={showPass ? "text" : "password"} value={pass} onChange={e=>setPass(e.target.value)} style={{width:"100%",padding:10,paddingRight:40,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",boxSizing:"border-box"}}/>
           <span onClick={()=>setShowPass(!showPass)} style={{position:"absolute",right:10,top:"50%",transform:"translateY(-50%)",cursor:"pointer",fontSize:18}}>
             {showPass ? "🙈" : "👁️"}
           </span>
         </div>
         {error && <div style={{color:"#ff4444",marginBottom:8,fontSize:13}}>{error}</div>}
         <button onClick={loginEmail} disabled={!!authLoading} style={{width:"100%",padding:12,background:"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold"}}>
-          {mode==="login" ? "Нэвтрэх →" : "Бүртгүүлэх →"}
+          {mode==="login" ? "Sign In →" : "Sign Up →"}
         </button>
         <p style={{textAlign:"center",marginTop:12,color:"#888",fontSize:13}}>
-          {mode==="login" ? "Бүртгэлгүй юу? " : "Бүртгэлтэй юу? "}
-          <span onClick={()=>setMode(mode==="login"?"register":"login")} style={{color:"#e53",cursor:"pointer"}}>{mode==="login"?"Бүртгүүлэх":"Нэвтрэх"}</span>
+          {mode==="login" ? "Don't have an account? " : "Already have an account? "}
+          <span onClick={()=>setMode(mode==="login"?"register":"login")} style={{color:"#e53",cursor:"pointer"}}>{mode==="login"?"Sign Up":"Sign In"}</span>
         </p>
       </div>
     </div>
@@ -144,7 +144,7 @@ export default function Home() {
           </div>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <span style={{color:"#888",fontSize:13}}>{user.email}</span>
-            <button onClick={()=>signOut(auth)} style={{padding:"6px 12px",background:"#222",color:"white",border:"1px solid #333",borderRadius:6,cursor:"pointer"}}>Гарах</button>
+            <button onClick={()=>signOut(auth)} style={{padding:"6px 12px",background:"#222",color:"white",border:"1px solid #333",borderRadius:6,cursor:"pointer"}}>Sign Out</button>
           </div>
         </div>
 
@@ -152,12 +152,12 @@ export default function Home() {
           <h2 style={{fontSize:20,marginBottom:16}}>Shorts Generator</h2>
           {!isAdmin && (
             <div style={{background:"#1a1a1a",borderRadius:8,padding:12,marginBottom:16,fontSize:13,color:"#aaa"}}>
-              Үнэгүй ашиглалт: <strong style={{color:usageCount>=3?"#ff4444":"#4caf50"}}>{usageCount}/3</strong>
-              {usageCount>=3 && <span style={{color:"#ff4444"}}> — Дууслаа!</span>}
+              Free usage: <strong style={{color:usageCount>=3?"#ff4444":"#4caf50"}}>{usageCount}/3</strong>
+              {usageCount>=3 && <span style={{color:"#ff4444"}}> — Limit reached!</span>}
             </div>
           )}
           <input
-            placeholder="YouTube линк оруулна уу..."
+            placeholder="Enter YouTube link..."
             value={url}
             onChange={e=>setUrl(e.target.value)}
             style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:12,boxSizing:"border-box",fontSize:15}}
@@ -168,13 +168,13 @@ export default function Home() {
             disabled={generating || (!isAdmin && usageCount>=3)}
             style={{width:"100%",padding:14,background:(!isAdmin&&usageCount>=3)?"#333":"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold",fontSize:16}}
           >
-            {generating ? "Үүсгэж байна..." : "Shorts үүсгэх 🚀"}
+            {generating ? "Generating..." : "Generate Shorts 🚀"}
           </button>
         </div>
 
         {result && (
           <div style={{background:"#111",borderRadius:16,padding:24}}>
-            <h3 style={{marginBottom:12}}>Үр дүн:</h3>
+            <h3 style={{marginBottom:12}}>Result:</h3>
             <pre style={{color:"#4caf50",whiteSpace:"pre-wrap"}}>{result}</pre>
           </div>
         )}
