@@ -65,6 +65,7 @@ export default function Home() {
   const [usageCount, setUsageCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [activePage, setActivePage] = useState("home");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -166,9 +167,7 @@ export default function Home() {
         </button>
         {mode==="login" && (
           <p style={{textAlign:"center",marginTop:8,fontSize:13}}>
-            <span onClick={resetPassword} style={{color:"#888",cursor:"pointer",textDecoration:"underline"}}>
-              Forgot password?
-            </span>
+            <span onClick={resetPassword} style={{color:"#888",cursor:"pointer",textDecoration:"underline"}}>Forgot password?</span>
           </p>
         )}
         <p style={{textAlign:"center",marginTop:12,color:"#888",fontSize:13}}>
@@ -179,49 +178,72 @@ export default function Home() {
     </div>
   );
 
+  const menuItems = [
+    { id: "home", icon: "🏠", label: "Home" },
+    { id: "profile", icon: "👤", label: "Profile" },
+    { id: "settings", icon: "⚙️", label: "Settings" },
+  ];
+
   return (
-    <div style={{minHeight:"100vh",background:"#0a0a0a",color:"white",fontFamily:"sans-serif",padding:24}}>
-      <div style={{maxWidth:700,margin:"0 auto"}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:32}}>
-          <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontSize:28}}>🎬</span>
-            <span style={{fontSize:20,fontWeight:"bold"}}>ShortsStudio</span>
-            {isAdmin && <span style={{background:"#e53",padding:"2px 8px",borderRadius:4,fontSize:12}}>ADMIN</span>}
-          </div>
-          <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <span style={{color:"#888",fontSize:13}}>{user.email}</span>
-            <button onClick={()=>signOut(auth)} style={{padding:"6px 12px",background:"#222",color:"white",border:"1px solid #333",borderRadius:6,cursor:"pointer"}}>Sign Out</button>
-          </div>
+    <div style={{display:"flex",minHeight:"100vh",background:"#0a0a0a",color:"white",fontFamily:"sans-serif"}}>
+      {/* Sidebar */}
+      <div style={{width:220,background:"#111",borderRight:"1px solid #222",display:"flex",flexDirection:"column",padding:"24px 0"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,padding:"0 20px",marginBottom:32}}>
+          <span style={{fontSize:24}}>🎬</span>
+          <span style={{fontSize:18,fontWeight:"bold"}}>ShortsStudio</span>
+          {isAdmin && <span style={{background:"#e53",padding:"2px 6px",borderRadius:4,fontSize:10}}>ADMIN</span>}
         </div>
+        {menuItems.map(item => (
+          <div key={item.id} onClick={()=>setActivePage(item.id)} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 20px",cursor:"pointer",background:activePage===item.id?"#1a1a1a":"transparent",borderLeft:activePage===item.id?"3px solid #e53":"3px solid transparent",color:activePage===item.id?"white":"#888",transition:"all 0.2s"}}>
+            <span style={{fontSize:18}}>{item.icon}</span>
+            <span style={{fontSize:15}}>{item.label}</span>
+          </div>
+        ))}
+        <div style={{marginTop:"auto",padding:"0 20px"}}>
+          <div style={{color:"#555",fontSize:12,marginBottom:8}}>{user.email}</div>
+          <button onClick={()=>signOut(auth)} style={{width:"100%",padding:"8px",background:"#222",color:"#888",border:"1px solid #333",borderRadius:6,cursor:"pointer",fontSize:13}}>Sign Out</button>
+        </div>
+      </div>
 
-        <div style={{background:"#111",borderRadius:16,padding:24,marginBottom:16}}>
-          <h2 style={{fontSize:20,marginBottom:16}}>Shorts Generator</h2>
-          {!isAdmin && (
-            <div style={{background:"#1a1a1a",borderRadius:8,padding:12,marginBottom:16,fontSize:13,color:"#aaa"}}>
-              Free usage: <strong style={{color:usageCount>=3?"#ff4444":"#4caf50"}}>{usageCount}/3</strong>
-              {usageCount>=3 && <span style={{color:"#ff4444"}}> — Limit reached!</span>}
+      {/* Main content */}
+      <div style={{flex:1,padding:32}}>
+        {activePage === "home" && (
+          <div style={{maxWidth:700}}>
+            <h2 style={{fontSize:24,marginBottom:24}}>Shorts Generator</h2>
+            {!isAdmin && (
+              <div style={{background:"#111",borderRadius:8,padding:12,marginBottom:16,fontSize:13,color:"#aaa"}}>
+                Free usage: <strong style={{color:usageCount>=3?"#ff4444":"#4caf50"}}>{usageCount}/3</strong>
+                {usageCount>=3 && <span style={{color:"#ff4444"}}> — Limit reached!</span>}
+              </div>
+            )}
+            <input placeholder="Enter YouTube link..." value={url} onChange={e=>setUrl(e.target.value)} style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #333",background:"#111",color:"white",marginBottom:12,boxSizing:"border-box",fontSize:15}}/>
+            {error && <div style={{color:"#ff4444",marginBottom:12,fontSize:13}}>{error}</div>}
+            <button onClick={generate} disabled={generating||(!isAdmin&&usageCount>=3)} style={{width:"100%",padding:14,background:(!isAdmin&&usageCount>=3)?"#333":"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold",fontSize:16}}>
+              {generating ? "Generating..." : "Generate Shorts 🚀"}
+            </button>
+            {result && <div style={{background:"#111",borderRadius:16,padding:24,marginTop:16}}><pre style={{color:"#4caf50",whiteSpace:"pre-wrap"}}>{result}</pre></div>}
+          </div>
+        )}
+
+        {activePage === "profile" && (
+          <div style={{maxWidth:500}}>
+            <h2 style={{fontSize:24,marginBottom:24}}>Profile</h2>
+            <div style={{background:"#111",borderRadius:16,padding:24}}>
+              <div style={{fontSize:48,textAlign:"center",marginBottom:16}}>👤</div>
+              <div style={{marginBottom:12}}><span style={{color:"#888"}}>Email: </span>{user.email}</div>
+              <div style={{marginBottom:12}}><span style={{color:"#888"}}>Role: </span>{isAdmin ? "Admin" : "User"}</div>
+              <div><span style={{color:"#888"}}>Usage: </span>{isAdmin ? "Unlimited" : `${usageCount}/3`}</div>
             </div>
-          )}
-          <input
-            placeholder="Enter YouTube link..."
-            value={url}
-            onChange={e=>setUrl(e.target.value)}
-            style={{width:"100%",padding:12,borderRadius:8,border:"1px solid #333",background:"#222",color:"white",marginBottom:12,boxSizing:"border-box",fontSize:15}}
-          />
-          {error && <div style={{color:"#ff4444",marginBottom:12,fontSize:13}}>{error}</div>}
-          <button
-            onClick={generate}
-            disabled={generating || (!isAdmin && usageCount>=3)}
-            style={{width:"100%",padding:14,background:(!isAdmin&&usageCount>=3)?"#333":"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold",fontSize:16}}
-          >
-            {generating ? "Generating..." : "Generate Shorts 🚀"}
-          </button>
-        </div>
+          </div>
+        )}
 
-        {result && (
-          <div style={{background:"#111",borderRadius:16,padding:24}}>
-            <h3 style={{marginBottom:12}}>Result:</h3>
-            <pre style={{color:"#4caf50",whiteSpace:"pre-wrap"}}>{result}</pre>
+        {activePage === "settings" && (
+          <div style={{maxWidth:500}}>
+            <h2 style={{fontSize:24,marginBottom:24}}>Settings</h2>
+            <div style={{background:"#111",borderRadius:16,padding:24}}>
+              <p style={{color:"#888",marginBottom:16}}>Account settings coming soon.</p>
+              <button onClick={()=>signOut(auth)} style={{padding:"10px 20px",background:"#e53",color:"white",border:"none",borderRadius:8,cursor:"pointer",fontWeight:"bold"}}>Sign Out</button>
+            </div>
           </div>
         )}
       </div>
