@@ -67,6 +67,7 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [page, setPage] = useState("home");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (u) => {
@@ -203,11 +204,51 @@ export default function Home() {
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#0a0a0a", color: "white", fontFamily: "sans-serif" }}>
-      <div style={{ width: 220, minWidth: 220, background: "#111", borderRight: "1px solid #222", display: "flex", flexDirection: "column", padding: "24px 0", position: "sticky", top: 0, height: "100vh" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 20px", marginBottom: 32 }}>
-          <img src={LOGO_SRC} alt="ASC Shorts" style={{ width: 32, height: 32, objectFit: "contain" }} />
-          <span style={{ fontSize: 18, fontWeight: "bold" }}>ShortsStudio</span>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "white", fontFamily: "sans-serif", position: "relative" }}>
+      {/* Top bar */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 20px", borderBottom: "1px solid #222" }}>
+        <button
+          onClick={() => setSidebarOpen(true)}
+          style={{ background: "#111", border: "1px solid #333", borderRadius: 8, width: 40, height: 40, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 20 }}
+        >
+          ☰
+        </button>
+        <img src={LOGO_SRC} alt="ASC Shorts" style={{ width: 28, height: 28, objectFit: "contain" }} />
+        <span style={{ fontSize: 16, fontWeight: "bold" }}>ShortsStudio</span>
+        {isAdmin && <span style={{ background: "#e53", padding: "2px 8px", borderRadius: 4, fontSize: 10, fontWeight: "bold" }}>ADMIN</span>}
+      </div>
+
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 40 }}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: sidebarOpen ? 0 : -240,
+          width: 220,
+          height: "100vh",
+          background: "#111",
+          borderRight: "1px solid #222",
+          display: "flex",
+          flexDirection: "column",
+          padding: "24px 0",
+          transition: "left 0.25s ease",
+          zIndex: 50,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", marginBottom: 32 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <img src={LOGO_SRC} alt="ASC Shorts" style={{ width: 32, height: 32, objectFit: "contain" }} />
+            <span style={{ fontSize: 18, fontWeight: "bold" }}>ShortsStudio</span>
+          </div>
+          <span onClick={() => setSidebarOpen(false)} style={{ cursor: "pointer", color: "#888", fontSize: 18 }}>✕</span>
         </div>
         {isAdmin && (
           <div style={{ margin: "0 20px 20px", background: "#e53", padding: "4px 10px", borderRadius: 4, fontSize: 11, textAlign: "center", fontWeight: "bold" }}>
@@ -217,7 +258,10 @@ export default function Home() {
         {menuItems.map((item) => (
           <div
             key={item.id}
-            onClick={() => setPage(item.id)}
+            onClick={() => {
+              setPage(item.id);
+              setSidebarOpen(false);
+            }}
             style={{
               display: "flex",
               alignItems: "center",
@@ -241,7 +285,8 @@ export default function Home() {
         </div>
       </div>
 
-      <div style={{ flex: 1, padding: 32 }}>
+      {/* Main content */}
+      <div style={{ padding: 32 }}>
         {page === "home" && (
           <div style={{ maxWidth: 700 }}>
             <h2 style={{ fontSize: 24, marginBottom: 24 }}>Shorts Generator</h2>
