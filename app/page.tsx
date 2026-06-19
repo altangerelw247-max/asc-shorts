@@ -26,6 +26,7 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 const auth = getAuth(app);
 const db = getFirestore(app);
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+const LOGO_SRC = "/Screenshot%202026-06-20%20022620.png";
 
 function getErrorMessage(code: string): string {
   switch (code) {
@@ -152,7 +153,7 @@ export default function Home() {
   if (!user) {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", background: "#0a0a0a", color: "white", fontFamily: "sans-serif" }}>
-        <div style={{ fontSize: 48, marginBottom: 8 }}>🎬</div>
+        <img src={LOGO_SRC} alt="ASC Shorts" style={{ width: 80, height: 80, objectFit: "contain", marginBottom: 8 }} />
         <h1 style={{ fontSize: 28, fontWeight: "bold", marginBottom: 4 }}>ShortsStudio</h1>
         <p style={{ color: "#888", marginBottom: 32 }}>Create your account</p>
         <div style={{ background: "#111", padding: 32, borderRadius: 16, width: 340 }}>
@@ -205,7 +206,7 @@ export default function Home() {
     <div style={{ display: "flex", minHeight: "100vh", background: "#0a0a0a", color: "white", fontFamily: "sans-serif" }}>
       <div style={{ width: 220, minWidth: 220, background: "#111", borderRight: "1px solid #222", display: "flex", flexDirection: "column", padding: "24px 0", position: "sticky", top: 0, height: "100vh" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 20px", marginBottom: 32 }}>
-          <span style={{ fontSize: 24 }}>🎬</span>
+          <img src={LOGO_SRC} alt="ASC Shorts" style={{ width: 32, height: 32, objectFit: "contain" }} />
           <span style={{ fontSize: 18, fontWeight: "bold" }}>ShortsStudio</span>
         </div>
         {isAdmin && (
@@ -276,7 +277,9 @@ export default function Home() {
           <div style={{ maxWidth: 500 }}>
             <h2 style={{ fontSize: 24, marginBottom: 24 }}>Profile</h2>
             <div style={{ background: "#111", borderRadius: 16, padding: 24 }}>
-              <div style={{ fontSize: 48, textAlign: "center", marginBottom: 16 }}>👤</div>
+              <div style={{ textAlign: "center", marginBottom: 16 }}>
+                <img src={LOGO_SRC} alt="ASC Shorts" style={{ width: 56, height: 56, objectFit: "contain" }} />
+              </div>
               <div style={{ marginBottom: 12 }}>
                 <span style={{ color: "#888" }}>Email: </span>
                 {user.email}
