@@ -27,6 +27,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 const LOGO_SRC = "/Screenshot%202026-06-20%20022620.png";
+const BACKEND_URL = "https://asc-shorts-backend-production.up.railway.app";
 
 function getErrorMessage(code: string): string {
   switch (code) {
@@ -62,6 +63,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [url, setUrl] = useState("");
   const [result, setResult] = useState("");
+  const [clipUrls, setClipUrls] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
   const [usageCount, setUsageCount] = useState(0);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -130,15 +132,31 @@ export default function Home() {
     setGenerating(true);
     setError("");
     setResult("");
+    setClipUrls([]);
     try {
       const ref = doc(db, "users", user.uid);
       if (!isAdmin) {
         await updateDoc(ref, { count: increment(1) });
         setUsageCount((c) => c + 1);
       }
-      setResult(`✅ "${url}" - Generating shorts...\n\nThis feature will be available soon!`);
+
+      const res = await fetch(`${BACKEND_URL}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, clip_length: 30, num_clips: 3 }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to generate shorts.");
+      }
+
+      const data = await res.json();
+      const fullUrls = data.clips.map((c: string) => `${BACKEND_URL}${c}`);
+      setClipUrls(fullUrls);
+      setResult(`✅ Generated ${data.clips.length} short${data.clips.length === 1 ? "" : "s"}!`);
     } catch (e: any) {
-      setError(getErrorMessage(e.code));
+      setError(e.message || "Something went wrong.");
     }
     setGenerating(false);
   }
@@ -308,11 +326,23 @@ export default function Home() {
               disabled={generating || (!isAdmin && usageCount >= 3)}
               style={{ width: "100%", padding: 14, background: !isAdmin && usageCount >= 3 ? "#333" : "#e53", color: "white", border: "none", borderRadius: 8, cursor: "pointer", fontWeight: "bold", fontSize: 16 }}
             >
-              {generating ? "Generating..." : "Generate Shorts 🚀"}
+              {generating ? "Generating... (this can take a minute)" : "Generate Shorts 🚀"}
             </button>
             {result && (
               <div style={{ background: "#111", borderRadius: 16, padding: 24, marginTop: 16 }}>
-                <pre style={{ color: "#4caf50", whiteSpace: "pre-wrap" }}>{result}</pre>
+                <p style={{ color: "#4caf50", marginBottom: 16 }}>{result}</p>
+                {clipUrls.length > 0 && (
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+                    {clipUrls.map((clipUrl, i) => (
+                      <div key={i} style={{ background: "#1a1a1a", borderRadius: 8, padding: 8 }}>
+                        <video src={clipUrl} controls style={{ width: "100%", borderRadius: 6, marginBottom: 8 }} />
+                        <a href={clipUrl} download style={{ color: "#e53", fontSize: 13, textDecoration: "underline" }}>
+                          Download Short {i + 1}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
